@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Fiscalização</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .form-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .header h2 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #4b5563;
+        }
+        .divider {
+            border-bottom: 2px solid #e5e7eb;
+            margin-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .field-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .field-group {
+            flex: 1 1 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 640px) {
+            .field-row.two-cols > .field-group {
+                flex: 1 1 calc(50% - 0.5rem);
+            }
+            .field-row.three-cols > .field-group {
+                flex: 1 1 calc(33.333% - 0.666rem);
+            }
+            .field-row.four-cols > .field-group {
+                flex: 1 1 calc(25% - 0.75rem);
+            }
+        }
+        .label {
+            font-size: 0.875rem;
+            color: #4b5563;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .input-field, .textarea-field, .select-field {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #1f2937;
+            transition: all 0.2s ease-in-out;
+        }
+        .input-field:focus, .textarea-field:focus, .select-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .radio-group input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .radio-group input[type="radio"]:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .button {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 700;
+            color: #fff;
+            background-color: #2563eb;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #1e40af;
+        }
+        .signature-pad {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            cursor: pointer;
+            width: 100%;
+            height: 150px;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+        }
+        #modalSignaturePad {
+            border: 1px solid #000;
+            width: 100%;
+            height: 300px;
+            background-color: #fff;
+            cursor: crosshair;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="form-container">
+        <div class="header">
+            <h1 class="text-xl md:text-2xl font-bold">PREFEITURA MUNICIPAL DE ROLIM DE MOURA</h1>
+            <h2 class="text-sm md:text-base font-semibold text-gray-700">SECRETARIA DA FAZENDA</h2>
+            <h2 class="text-xs md:text-sm text-gray-600">DIVISÃO DE FISCALIZAÇÃO</h2>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field-row two-cols mb-6 items-center">
+            <div class="field-group">
+                <label class="label">DIVISÃO / NÚCLEO</label>
+                <input type="text" class="input-field" placeholder="DIVISÃO DE FISCALIZAÇÃO" disabled>
+            </div>
+            <div class="field-group">
+                <label class="label">NÚMERO</label>
+                <input type="text" class="input-field" placeholder="0392" disabled>
+            </div>
+        </div>
+
+        <div class="field-row mb-6">
+            <div class="field-group">
+                <label class="label mb-2">OBJETO DO TERMO</label>
+                <div class="radio-group">
+                    <div class="flex items-center gap-2">
+                        <input type="radio" id="intimation" name="term_type" value="intimation" class="cursor-pointer">
+                        <label for="intimation" class="text-sm text-gray-700 font-medium">TERMO DE INTIMAÇÃO</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" id="notification" name="term_type" value="notification" class="cursor-pointer">
+                        <label for="notification" class="text-sm text-gray-700 font-medium">NOTIFICAÇÃO</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" id="infraction" name="term_type" value="infraction" class="cursor-pointer">
+                        <label for="infraction" class="text-sm text-gray-700 font-medium">AUTO DE INFRAÇÃO</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="field-group">
+                <label class="label">PESSOA FÍSICA OU JURÍDICA</label>
+                <select id="person_type" class="select-field">
+                    <option value="juridica">Pessoa Jurídica</option>
+                    <option value="fisica">Pessoa Física</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label class="label">ATIVIDADE</label>
+                <input type="text" class="input-field" placeholder="Atividade">
+            </div>
+            <div class="field-group">
+                <label class="label">CNPJ/CPF</label>
+                <input type="text" class="input-field" placeholder="Ex: 12.345.678/0001-95">
+            </div>
+            <div class="field-group">
+                <label class="label">ENDEREÇO</label>
+                <input type="text" class="input-field" placeholder="Endereço">
+            </div>
+            <div class="field-group">
+                <label class="label">DENOMINAÇÃO COMERCIAL</label>
+                <input type="text" class="input-field" placeholder="Denominação Comercial">
+            </div>
+            <div class="field-group">
+                <label class="label">MUNICÍPIO</label>
+                <input type="text" class="input-field" placeholder="Município">
+            </div>
+            <div class="field-group">
+                <label class="label">BAIRRO/ENDEREÇO LOGRADOURO</label>
+                <input type="text" class="input-field" placeholder="Bairro">
+            </div>
+            <div class="field-group">
+                <label class="label">NÚMERO</label>
+                <input type="text" class="input-field" placeholder="Número">
+            </div>
+        </div>
+
+        <div class="field-group mb-6">
+            <label class="label">DISPOSITIVO LEGAL OU REGULAMENTAR FUNDAMENTADO</label>
+            <input type="text" class="input-field" placeholder="">
+        </div>
+
+        <div class="field-group mb-6">
+            <label class="label">ESPECIFICAÇÃO DAS EXIGÊNCIAS OU DA NOTIFICAÇÃO</label>
+            <textarea class="textarea-field h-32 resize-none" placeholder=""></textarea>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="field-group">
+                <label class="label">PRAZO PARA CUMPRIMENTO DAS EXIGÊNCIAS</label>
+                <input type="text" class="input-field" placeholder="">
+            </div>
+            <div class="field-group">
+                <label class="label">PRAZO PARA INTERPOSIÇÃO DE RECURSO DE ANÁLISE CONDENATÓRIOS</label>
+                <input type="text" class="input-field" placeholder="">
+            </div>
+        </div>
+
+        <div class="field-group mb-6">
+            <label class="label">OBSERVAÇÕES</label>
+            <textarea class="textarea-field h-24 resize-none" placeholder=""></textarea>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="field-group">
+                <label class="label">ASSINATURA DA AUTORIDADE FISCAL</label>
+                <canvas id="fiscalSignature" class="signature-pad"></canvas>
+            </div>
+            <div class="field-group">
+                <label class="label">ASSINATURA DO INTIMADO OU NOTIFICADO</label>
+                <canvas id="intimadoSignature" class="signature-pad"></canvas>
+            </div>
+            <div class="field-group">
+                <label class="label">ASSINATURA DA TESTEMUNHA</label>
+                <canvas id="testemunhaSignature" class="signature-pad"></canvas>
+            </div>
+        </div>
+
+        <div class="field-row two-cols mb-6 items-center">
+            <div class="field-group">
+                <label class="label">DATA DA LAVRATURA</label>
+                <input type="date" id="date_lavratura" class="input-field">
+            </div>
+            <div class="field-group">
+                <label class="label">HORA DA LAVRATURA</label>
+                <input type="time" id="time_lavratura" class="input-field">
+            </div>
+        </div>
+
+        <div class="flex justify-center mt-6">
+            <button class="button">Salvar Formulário</button>
+        </div>
+    </div>
+
+    <!-- Modal de Assinatura -->
+    <div id="signatureModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4 text-center">Assine aqui</h3>
+            <canvas id="modalSignaturePad"></canvas>
+            <div class="flex gap-4 mt-4">
+                <button onclick="confirmSignature()" class="button flex-1 bg-green-500 hover:bg-green-700">Confirmar Assinatura</button>
+                <button onclick="clearModalSignature()" class="button flex-1 bg-red-500 hover:bg-red-700">Limpar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const signatureModal = document.getElementById('signatureModal');
+        const modalSignaturePad = document.getElementById('modalSignaturePad');
+        const modalCtx = modalSignaturePad.getContext('2d');
+        let currentCanvasId = null;
+
+        window.onload = function() {
+            // Preenche a data e hora atuais automaticamente
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hour = now.getHours().toString().padStart(2, '0');
+            const minute = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('date_lavratura').value = `${year}-${month}-${day}`;
+            document.getElementById('time_lavratura').value = `${hour}:${minute}`;
+        
+            // Configura os canvas de assinatura para abrir o modal
+            const signaturePads = document.querySelectorAll('.signature-pad');
+            signaturePads.forEach(pad => {
+                // Garante que o canvas principal tem o tamanho correto no carregamento
+                pad.width = pad.offsetWidth;
+                pad.height = pad.offsetHeight;
+                pad.addEventListener('click', () => openSignatureModal(pad.id));
+            });
+            
+            setupModalSignaturePad();
+        };
+
+        // Adiciona listener para redimensionamento da janela
+        window.addEventListener('resize', () => {
+            const signaturePads = document.querySelectorAll('.signature-pad');
+            signaturePads.forEach(pad => {
+                pad.width = pad.offsetWidth;
+                pad.height = pad.offsetHeight;
+            });
+            modalSignaturePad.width = modalSignaturePad.offsetWidth;
+            modalSignaturePad.height = modalSignaturePad.offsetHeight;
+        });
+
+        function setupModalSignaturePad() {
+            modalCtx.lineWidth = 2;
+            modalCtx.lineCap = 'round';
+            modalCtx.strokeStyle = '#000';
+            
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            function getPosition(e) {
+                const rect = modalSignaturePad.getBoundingClientRect();
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                const pos = getPosition(e);
+                modalCtx.beginPath();
+                modalCtx.moveTo(lastX, lastY);
+                modalCtx.lineTo(pos.x, pos.y); // <-- Linha corrigida
+                modalCtx.stroke();
+                [lastX, lastY] = [pos.x, pos.y];
+            }
+
+            modalSignaturePad.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                const pos = getPosition(e);
+                [lastX, lastY] = [pos.x, pos.y];
+            });
+
+            modalSignaturePad.addEventListener('mousemove', draw);
+            modalSignaturePad.addEventListener('mouseup', () => isDrawing = false);
+            modalSignaturePad.addEventListener('mouseout', () => isDrawing = false);
+
+            modalSignaturePad.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isDrawing = true;
+                const touch = e.touches[0];
+                const pos = getPosition(touch);
+                [lastX, lastY] = [pos.x, pos.y];
+            });
+
+            modalSignaturePad.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (!isDrawing) return;
+                const touch = e.touches[0];
+                const pos = getPosition(touch);
+                modalCtx.beginPath();
+                modalCtx.moveTo(lastX, lastY);
+                modalCtx.lineTo(pos.x, pos.y);
+                modalCtx.stroke();
+                [lastX, lastY] = [pos.x, pos.y];
+            });
+
+            modalSignaturePad.addEventListener('touchend', () => isDrawing = false);
+            modalSignaturePad.addEventListener('touchcancel', () => isDrawing = false);
+        }
+
+        function openSignatureModal(canvasId) {
+            currentCanvasId = canvasId;
+            signatureModal.classList.remove('hidden');
+            // Redimensiona o canvas para o tamanho do modal
+            modalSignaturePad.width = modalSignaturePad.offsetWidth;
+            modalSignaturePad.height = modalSignaturePad.offsetHeight;
+            clearModalSignature();
+        }
+
+        function confirmSignature() {
+            if (currentCanvasId) {
+                const mainCanvas = document.getElementById(currentCanvasId);
+                const mainCtx = mainCanvas.getContext('2d');
+                
+                // Redimensiona o canvas principal para o tamanho correto
+                mainCanvas.width = mainCanvas.offsetWidth;
+                mainCanvas.height = mainCanvas.offsetHeight;
+
+                // Copia a assinatura do modal para o canvas principal
+                const signatureImage = new Image();
+                signatureImage.onload = function() {
+                    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                    mainCtx.drawImage(signatureImage, 0, 0, mainCanvas.width, mainCanvas.height);
+                };
+                signatureImage.src = modalSignaturePad.toDataURL();
+            }
+            signatureModal.classList.add('hidden');
+        }
+
+        function clearModalSignature() {
+            modalCtx.clearRect(0, 0, modalSignaturePad.width, modalSignaturePad.height);
+        }
+    </script>
+</body>
+</html>
